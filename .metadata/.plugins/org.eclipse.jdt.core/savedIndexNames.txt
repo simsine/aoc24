@@ -1,4 +1,0 @@
-INDEX VERSION 1.134+/home/simsine/git/Studie/aoc24/.metadata/.plugins/org.eclipse.jdt.core
-3619769358.index
-1865797976.index
-1321737652.index
