@@ -1,8 +1,9 @@
-package part1;
+package part2;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
 
@@ -16,12 +17,18 @@ public class Main {
 		
 		while (scanner.hasNextLine()) {
 			String line = scanner.nextLine();
-			List<Integer> nums = List.of(line.split(" "))
+			List<Integer> lineNums = List.of(line.split(" "))
 				.stream()
 				.map(Integer::valueOf)
 				.toList();
-				
-			if (isSafe(nums)) safeReports++;
+			boolean isOneSafe = false;
+			for (int i = 0; i < lineNums.size(); i++) {
+				LinkedList<Integer> removedLevel = new LinkedList<Integer>(lineNums);
+				removedLevel.remove(i);
+				if (isSafe(removedLevel)) isOneSafe = true;
+			}
+			
+			if (isOneSafe) safeReports++;
 		}
 		scanner.close();
 		
