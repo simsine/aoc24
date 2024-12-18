@@ -1,51 +1,51 @@
 package part2;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.LinkedList;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
-import java.util.Scanner;
+import java.util.regex.MatchResult;
+import java.util.regex.Pattern;
 
 public class Main {
 	
-	private static int safeReports = 0;
+	private static int mulRes = 0;
+	
+	private static boolean doMul = true;
 	
 	public static void main(String[] args) throws IOException {
+		List<String> lines = Files.readAllLines(Path.of("input.txt"));
 		
-		Scanner scanner = new Scanner(new File("input.txt"));
+		Pattern instructionPattern = Pattern.compile("mul\\(\\d+\\,\\d+\\)|do\\(\\)|don't\\(\\)");
+		Pattern numPattern = Pattern.compile("\\d+");
 		
-		while (scanner.hasNextLine()) {
-			String line = scanner.nextLine();
-			List<Integer> lineNums = List.of(line.split(" "))
-				.stream()
-				.map(Integer::valueOf)
-				.toList();
-			boolean isOneSafe = false;
-			for (int i = 0; i < lineNums.size(); i++) {
-				LinkedList<Integer> removedLevel = new LinkedList<Integer>(lineNums);
-				removedLevel.remove(i);
-				if (isSafe(removedLevel)) isOneSafe = true;
+		List<String> matchedInstructions = instructionPattern.matcher(lines.toString())
+			.results()
+			.map(MatchResult::group)
+			.toList();
+		
+		for (String instruction : matchedInstructions) {
+			if (instruction.contains("do()")) {
+				doMul = true;
+				continue;
 			}
 			
-			if (isOneSafe) safeReports++;
+			if (instruction.contains("don't()")) {
+				doMul = false;
+				continue;
+			}
+			
+			if (doMul) {
+				mulRes += numPattern.matcher(instruction)
+					.results()
+					.map(MatchResult::group)
+					.mapToInt(Integer::parseInt)
+					.reduce((left, right) -> left * right)
+					.getAsInt();
+			}
 		}
-		scanner.close();
 		
-		System.out.println("safeReports:" + safeReports);
+		System.out.println("mulRes:" + mulRes);
 	}
 	
-	public static boolean isSafe(List<Integer> nums) {
-		ArrayList<Integer> signs = new ArrayList<>(nums.size());
-		for (int i = 0; i < nums.size()-1; i++) {
-			int diff = Math.abs(nums.get(i) - nums.get(i+1));
-			if (diff < 1 || diff > 3) return false;
-			Integer diff2 = nums.get(i) - nums.get(i+1);
-			signs.add(Integer.signum(diff2));
-		}
-		if (signs.stream().anyMatch(t -> t == 0)) return false;
-		if (signs.stream().allMatch(t -> t == -1)) return true;
-		if (signs.stream().allMatch(t -> t == 1)) return true;
-		return false;
-	}
 }
